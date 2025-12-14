@@ -68,6 +68,12 @@ An advanced chatbot implementation that demonstrates **message summarization** a
 
 **Usage**: Open `Chatbot_with_message_summarization.ipynb` to see how summarization enables efficient long-term memory in chatbots.
 
+## 12. Chatbot with Message Summarization & External DB Memory
+
+An advanced chatbot implementation that combines **message summarization** with **external database checkpointing** using SQLite. This notebook extends the summarization chatbot by using `SqliteSaver` instead of `MemorySaver`, enabling **persistent memory that survives across notebook kernel restarts and application shutdowns**. Demonstrates how to set up SQLite checkpointing with both in-memory databases (`:memory:`) and persistent file-based databases, showing how conversation state is stored externally in a SQLite database file. Features message summarization to manage token costs, conditional routing based on conversation length, thread-based conversation management using thread IDs, and **persistent state persistence** across sessions. Unlike `MemorySaver` which only persists state during runtime, `SqliteSaver` ensures conversations are permanently stored on disk, making it ideal for production deployments where conversation history must survive server restarts or application redeployments.
+
+**Usage**: Open `Chatbot_with_message_summarization_&_external_DB_memory.ipynb` to see how external database checkpointing enables persistent, long-term conversation memory.
+
 ## Setup
 
 1. Create a `.env` file with your API keys:
