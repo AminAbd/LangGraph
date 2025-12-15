@@ -86,6 +86,12 @@ An introduction to **breakpoints** in LangGraph, which enable human-in-the-loop 
 
 **Usage**: Open `Breakpoints.ipynb` to learn how to implement human-in-the-loop approval workflows using breakpoints.
 
+## 15. Editing State and Human Feedback
+
+A demonstration of **editing graph state** and **inserting human feedback** during breakpoint interruptions. Builds on breakpoints to show how to directly modify graph state after an interruption using `graph.update_state()`. Demonstrates how state updates respect reducers - when updating the `messages` key, the `add_messages` reducer automatically appends new messages to the existing message list, allowing you to insert human feedback or corrections into the conversation flow. Shows how to modify state before resuming execution (e.g., correcting user input, adding clarification messages, or changing agent instructions), and how the graph continues execution with the modified state. Also demonstrates creating a dedicated **`human_feedback` node** as a placeholder within the graph structure that can be interrupted before execution, enabling human feedback to be integrated directly into the graph workflow. This pattern allows feedback to be collected at specific points in the execution cycle (e.g., after tool execution, before assistant response). This enables powerful **human-in-the-loop editing workflows** where users can not only approve actions but also actively modify the conversation state, correct errors, provide additional context, or redirect the agent's behavior before it continues execution. Essential for interactive debugging, user correction scenarios, and adaptive agent workflows.
+
+**Usage**: Open `Editing_State_and_Human_Feedback.ipynb` to learn how to edit graph state and insert human feedback during breakpoint interruptions.
+
 ## Setup
 
 1. Create a `.env` file with your API keys:
