@@ -80,6 +80,12 @@ A comprehensive guide to **streaming** in LangGraph, which provides multiple way
 
 **Usage**: Open `Streaming.ipynb` to learn how to stream graph state and model tokens in real-time.
 
+## 14. Breakpoints
+
+An introduction to **breakpoints** in LangGraph, which enable human-in-the-loop workflows by pausing graph execution at specific nodes. Demonstrates the **`interrupt_before`** parameter when compiling graphs, which allows you to interrupt execution before a specific node (e.g., `interrupt_before=["tools"]` to pause before tool execution). Shows how to inspect the current state using `graph.get_state()` to view the next node to be executed and examine the state at the interruption point. Demonstrates resuming execution by invoking the graph with `None`, which continues from the last checkpoint and re-emits the current state before proceeding. This enables **human approval workflows** where users can review tool calls, modify state, or approve/deny operations before the graph continues execution. Supports use cases like approval (interrupting to get user consent), debugging (inspecting state at specific points), and editing (modifying state before resuming).
+
+**Usage**: Open `Breakpoints.ipynb` to learn how to implement human-in-the-loop approval workflows using breakpoints.
+
 ## Setup
 
 1. Create a `.env` file with your API keys:
