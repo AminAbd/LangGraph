@@ -1,69 +1,131 @@
 # RAG Projects
 
-This directory contains Retrieval-Augmented Generation (RAG) projects implemented using LangGraph and LangChain.
+This directory contains Retrieval-Augmented Generation (RAG) projects implemented using LangChain and LangGraph.
 
 ## Projects
 
-### RAG From Scratch
+### RAG with Multi-Query Generator
 
-**File:** `Rag_From_Scratch_1.ipynb`
+**File:** `Rag_and_multi_query_generator..ipynb`
 
-A foundational RAG implementation that demonstrates the core components of a Retrieval-Augmented Generation system from the ground up. This notebook provides a simple, straightforward example of how to build a basic RAG pipeline.
+An advanced RAG implementation that uses **multi-query generation** to improve retrieval quality by generating multiple query variations from a single user question.
 
 #### Overview
 
-This project implements a basic RAG system that:
-1. **Loads** documents from web sources
-2. **Splits** documents into manageable chunks
-3. **Embeds** and stores documents in a vector database
-4. **Retrieves** relevant documents based on queries
-5. **Generates** answers using retrieved context
+Traditional RAG systems retrieve documents based on a single query, which can miss relevant information due to the limitations of distance-based similarity search. This implementation addresses this by:
 
-#### Features
+1. **Generating multiple query variations** from the original question
+2. **Retrieving documents** for each query variation
+3. **Combining unique documents** from all retrievals
+4. **Generating the final answer** using the comprehensive context
 
-- **Web Document Loading**: Uses `WebBaseLoader` to extract content from web pages
-- **Text Splitting**: Implements `RecursiveCharacterTextSplitter` with configurable chunk size and overlap
-- **Vector Storage**: Uses ChromaDB for efficient similarity search
-- **RAG Chain**: Combines retrieval, formatting, and generation into a single chain
-- **Simple Interface**: Easy-to-use chain that takes a question and returns an answer
+#### How It Works
+
+The multi-query generator creates 5 different perspectives of the user's question, helping overcome limitations of similarity search by:
+- Using different phrasings and terminology
+- Exploring various angles of the same question
+- Capturing semantic variations that might be missed by a single query
 
 #### Workflow
 
 ```
-Question → Retrieve Documents → Format Context → Generate Answer
+Original Question
+    ↓
+Generate 5 Query Variations
+    ↓
+Retrieve Documents for Each Query
+    ↓
+Get Unique Union of All Documents
+    ↓
+Generate Final Answer with Combined Context
 ```
 
 #### Key Components
 
-1. **Document Loader**: Extracts content from web pages using BeautifulSoup
-2. **Text Splitter**: Breaks documents into chunks (1000 chars, 200 overlap)
-3. **Vector Store**: ChromaDB with OpenAI embeddings
-4. **Retriever**: Semantic search over embedded documents
-5. **RAG Chain**: Orchestrates retrieval and generation
+1. **Multi-Query Generator**: Uses an LLM to generate 5 alternative versions of the user question
+2. **Parallel Retrieval**: Retrieves documents for each generated query simultaneously
+3. **Document Deduplication**: Combines and deduplicates documents from all retrievals
+4. **RAG Chain**: Generates the final answer using the comprehensive document set
+
+#### Code Structure
+
+**Indexing:**
+- Loads documents from web sources
+- Splits documents into chunks (300 chars, 50 overlap)
+- Creates embeddings and stores in ChromaDB
+
+**Multi-Query Generation:**
+```python
+generate_queries = (
+    prompt_perspectives 
+    | ChatOpenAI(temperature=0) 
+    | StrOutputParser() 
+    | (lambda x: x.split("\n"))
+)
+```
+
+**Retrieval Chain:**
+```python
+retrieval_chain = generate_queries | retriever.map() | get_unique_union
+```
+
+**Final RAG Chain:**
+- Combines retrieval with question
+- Generates answer using all retrieved context
+
+#### Benefits
+
+- **Better Coverage**: Retrieves more relevant documents by exploring multiple query angles
+- **Improved Accuracy**: Reduces the chance of missing important information
+- **Semantic Diversity**: Captures different ways the same concept might be expressed
+- **Robust Retrieval**: Less dependent on the exact wording of the original question
 
 #### Usage
 
 1. Set up your `.env` file with API keys:
    ```
    OPENAI_API_KEY=your_key_here
+   LANGCHAIN_API_KEY=your_key_here (optional, for tracing)
    ```
 
 2. Run the notebook cells in order:
    - Environment setup
-   - Document loading and indexing
-   - RAG chain creation
-   - Query execution
+   - Document indexing
+   - Multi-query generator setup
+   - Retrieval chain creation
+   - Final RAG chain execution
 
 3. Ask questions:
    ```python
-   rag_chain.invoke({"question": "What is Task Decomposition?"})
+   question = "What is task decomposition for LLM agents?"
+   answer = final_rag_chain.invoke({"question": question})
    ```
 
-#### Example Questions
+#### Example
 
-- "What is Task Decomposition?"
-- "How do agents use tools?"
-- Any question related to the indexed documents
+**Original Question:** "What is task decomposition for LLM agents?"
+
+**Generated Queries:**
+- "How do LLM agents break down tasks?"
+- "What methods are used for task decomposition in language model agents?"
+- "Explain task decomposition strategies for AI agents"
+- "What is the process of decomposing tasks in LLM systems?"
+- "How are complex tasks divided in language model agent architectures?"
+
+Each query retrieves potentially different documents, which are then combined for a more comprehensive answer.
+
+#### Requirements
+
+- OpenAI API key
+- Python packages (see main `requirements.txt`)
+
+#### Key Dependencies
+
+- `langchain`
+- `langchain-openai`
+- `langchain-community`
+- `langchain-text-splitters`
+- `chromadb`
 
 ---
 
@@ -161,8 +223,9 @@ Key dependencies:
 
 ## Notes
 
-- The notebook uses ChromaDB for vector storage
-- Web search is triggered automatically when retrieved documents are not relevant
+- The notebooks use ChromaDB for vector storage
+- Web search (in CRAG) is triggered automatically when retrieved documents are not relevant
+- Multi-query generator creates 5 query variations by default (can be modified)
 - The implementation skips the knowledge refinement phase mentioned in the CRAG paper (can be added as an additional node if needed)
 
 ## References
@@ -170,5 +233,4 @@ Key dependencies:
 - [Corrective RAG Paper](https://arxiv.org/abs/2401.15884)
 - [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
 - [LangChain Documentation](https://python.langchain.com/)
-
 

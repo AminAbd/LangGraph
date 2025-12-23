@@ -45,7 +45,3 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Database files
-*.backup.sqlite
-Build a Customer Support Bot/travel2.backup.sqlite
-Build a Customer Support Bot/travel2.sqlite
