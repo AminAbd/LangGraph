@@ -652,6 +652,139 @@ The step-back question retrieves broader context about task decomposition proces
 
 ---
 
+### RAG with Hypothetical Document Embeddings (HyDE)
+
+**File:** `Rag_HyDE.ipynb`
+
+An advanced RAG implementation that uses **Hypothetical Document Embeddings (HyDE)** to improve retrieval by generating a hypothetical answer document and using it for retrieval instead of the original question.
+
+#### Overview
+
+HyDE addresses the semantic gap between questions and documents. Instead of searching with the question directly, this approach:
+
+1. **Generates a hypothetical document** - Creates a passage that would answer the question
+2. **Uses hypothetical document for retrieval** - Searches for documents similar to the hypothetical answer
+3. **Retrieves relevant documents** - Finds documents that match the hypothetical answer's style and content
+4. **Generates final answer** - Uses retrieved documents to answer the original question
+
+#### How It Works
+
+The HyDE approach:
+- Takes a question (e.g., "What is task decomposition for LLM agents?")
+- Generates a hypothetical scientific paper passage that would answer it
+- Uses that hypothetical passage to retrieve similar documents
+- Finds documents that are semantically similar to what an answer would look like
+- Uses retrieved documents to generate the final answer
+
+#### Key Concept
+
+**Hypothetical Documents** are:
+- Generated passages that represent what an ideal answer would look like
+- Written in the style and format of the target documents (e.g., scientific papers)
+- Used as queries for semantic search instead of the original question
+- More effective at finding relevant documents because they match the document format
+
+#### Workflow
+
+```
+Original Question
+    ↓
+Generate Hypothetical Answer Document
+    ↓
+Use Hypothetical Document for Retrieval
+    ↓
+Retrieve Similar Documents
+    ↓
+Generate Final Answer Using Retrieved Documents
+```
+
+#### Key Components
+
+1. **Hypothetical Document Generator**: Uses an LLM to generate a passage that would answer the question
+2. **HyDE Retrieval**: Uses the hypothetical document to search the vector store
+3. **Document Retrieval**: Finds documents similar to the hypothetical answer
+4. **RAG Chain**: Generates the final answer using retrieved documents
+
+#### Code Structure
+
+**Hypothetical Document Generation:**
+```python
+template = """Please write a scientific paper passage to answer the question
+Question: {question}
+Passage:"""
+prompt_hyde = ChatPromptTemplate.from_template(template)
+
+generate_docs_for_retrieval = (
+    prompt_hyde | ChatOpenAI(temperature=0) | StrOutputParser()
+)
+```
+
+**Retrieval Chain:**
+```python
+retrieval_chain = generate_docs_for_retrieval | retriever
+retrieved_docs = retrieval_chain.invoke({"question": question})
+```
+
+**Final RAG Chain:**
+- Uses retrieved documents and original question
+- Generates comprehensive answer
+
+#### Benefits
+
+- **Better Semantic Matching**: Hypothetical documents match the format and style of target documents
+- **Improved Retrieval**: Finds documents that are similar to what an answer would look like
+- **Reduced Semantic Gap**: Bridges the gap between question format and document format
+- **More Relevant Results**: Retrieves documents that are semantically closer to ideal answers
+- **Format-Aware**: Can be tailored to match specific document types (scientific papers, articles, etc.)
+
+#### Usage
+
+1. Set up your `.env` file with API keys:
+   ```
+   OPENAI_API_KEY=your_key_here
+   LANGCHAIN_API_KEY=your_key_here (optional, for tracing)
+   ```
+
+2. Run the notebook cells in order:
+   - Environment setup
+   - Document indexing
+   - Hypothetical document generator setup
+   - Retrieval chain creation
+   - Final RAG chain execution
+
+3. Ask questions:
+   ```python
+   question = "What is task decomposition for LLM agents?"
+   retrieved_docs = retrieval_chain.invoke({"question": question})
+   answer = final_rag_chain.invoke({"context": retrieved_docs, "question": question})
+   ```
+
+#### Example
+
+**Original Question:** "What is task decomposition for LLM agents?"
+
+**Hypothetical Document Generated:**
+A scientific paper-style passage explaining task decomposition, its methods, and applications in LLM agents.
+
+**Retrieval:** Uses the hypothetical passage to find similar documents in the vector store.
+
+**Final Answer:** Generated using the retrieved documents that match the hypothetical answer format.
+
+#### Requirements
+
+- OpenAI API key
+- Python packages (see main `requirements.txt`)
+
+#### Key Dependencies
+
+- `langchain`
+- `langchain-openai`
+- `langchain-community`
+- `langchain-text-splitters`
+- `chromadb`
+
+---
+
 ### Corrective RAG (CRAG)
 
 **File:** `Corrective RAG (CRAG).ipynb`
