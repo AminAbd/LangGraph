@@ -4,6 +4,83 @@ This directory contains Retrieval-Augmented Generation (RAG) projects implemente
 
 ## Projects
 
+### Basic RAG
+
+**File:** `Basic_RAG.ipynb`
+
+A foundational RAG implementation that demonstrates the core components of a Retrieval-Augmented Generation system. This notebook provides a simple, straightforward example of how to build a basic RAG pipeline from scratch.
+
+#### Overview
+
+This project implements a basic RAG system that:
+1. **Loads** documents from web sources
+2. **Splits** documents into manageable chunks
+3. **Embeds** and stores documents in a vector database
+4. **Retrieves** relevant documents based on queries
+5. **Generates** answers using retrieved context
+
+#### Features
+
+- **Web Document Loading**: Uses `WebBaseLoader` to extract content from web pages
+- **Text Splitting**: Implements `RecursiveCharacterTextSplitter` with configurable chunk size (1000 chars) and overlap (200)
+- **Vector Storage**: Uses ChromaDB for efficient similarity search
+- **RAG Chain**: Combines retrieval, formatting, and generation into a single chain
+- **Simple Interface**: Easy-to-use chain that takes a question and returns an answer
+
+#### Workflow
+
+```
+Question → Retrieve Documents → Format Context → Generate Answer
+```
+
+#### Key Components
+
+1. **Document Loader**: Extracts content from web pages using BeautifulSoup
+2. **Text Splitter**: Breaks documents into chunks (1000 chars, 200 overlap)
+3. **Vector Store**: ChromaDB with OpenAI embeddings
+4. **Retriever**: Semantic search over embedded documents
+5. **RAG Chain**: Orchestrates retrieval and generation
+
+#### Usage
+
+1. Set up your `.env` file with API keys:
+   ```
+   OPENAI_API_KEY=your_key_here
+   LANGCHAIN_API_KEY=your_key_here (optional, for tracing)
+   ```
+
+2. Run the notebook cells in order:
+   - Environment setup
+   - Document loading and indexing
+   - RAG chain creation
+   - Query execution
+
+3. Ask questions:
+   ```python
+   rag_chain.invoke({"question": "What is Task Decomposition?"})
+   ```
+
+#### Example Questions
+
+- "What is Task Decomposition?"
+- "How do agents use tools?"
+- Any question related to the indexed documents
+
+#### Requirements
+
+- OpenAI API key
+- Python packages (see main `requirements.txt`)
+
+#### Key Dependencies
+
+- `langchain`
+- `langchain-openai`
+- `langchain-community`
+- `langchain-text-splitters`
+- `chromadb`
+
+---
+
 ### RAG with Multi-Query Generator
 
 **File:** `Rag_and_multi_query_generator..ipynb`
