@@ -515,6 +515,143 @@ Each sub-question is answered independently, then synthesized into a comprehensi
 
 ---
 
+### RAG with Step-Back Prompting
+
+**File:** `Rag_Step_Back.ipynb`
+
+An advanced RAG implementation that uses **step-back prompting** to improve answer quality by retrieving both specific and general context. Instead of only searching for documents directly related to the question, it first generates a more generic "step-back" question to retrieve broader foundational context.
+
+#### Overview
+
+Step-back prompting addresses the limitation that specific questions may not retrieve enough foundational or general knowledge. This implementation:
+
+1. **Generates a step-back question** - A more generic version of the original question
+2. **Retrieves dual context** - Documents for both the original and step-back questions
+3. **Combines contexts** - Uses both specific and general context to generate comprehensive answers
+
+#### How It Works
+
+The step-back approach:
+- Takes a specific question (e.g., "What is task decomposition for LLM agents?")
+- Generates a more generic question (e.g., "What is the process of breaking down tasks for LLM agents?")
+- Retrieves documents for both questions
+- Uses the combined context to provide a more comprehensive answer
+
+#### Key Concept
+
+**Step-Back Questions** are more general versions that:
+- Capture the broader concept behind the specific question
+- Retrieve foundational knowledge and context
+- Provide background information that enriches the answer
+- Help avoid overly narrow retrieval that misses important context
+
+#### Workflow
+
+```
+Original Question
+    ↓
+Generate Step-Back Question (more generic)
+    ↓
+Retrieve Context for Original Question
+    ↓
+Retrieve Context for Step-Back Question
+    ↓
+Combine Both Contexts
+    ↓
+Generate Comprehensive Answer
+```
+
+#### Key Components
+
+1. **Few-Shot Step-Back Generator**: Uses examples to learn how to generate generic questions
+2. **Dual Retrieval**: Retrieves documents for both original and step-back questions
+3. **Context Combination**: Merges both contexts before generation
+4. **Comprehensive Answering**: Uses combined context to provide thorough answers
+
+#### Code Structure
+
+**Few-Shot Examples:**
+```python
+examples = [
+    {"input": "Could the members of The Police perform lawful arrests?",
+     "output": "what can the members of The Police do?"},
+    {"input": "Jan Sindel's was born in what country?",
+     "output": "what is Jan Sindel's personal history?"}
+]
+```
+
+**Step-Back Question Generation:**
+```python
+generate_queries_step_back = prompt | ChatOpenAI(temperature=0) | StrOutputParser()
+```
+
+**Dual Context Retrieval:**
+```python
+chain = (
+    {
+        "normal_context": RunnableLambda(lambda x: x["question"]) | retriever,
+        "step_back_context": generate_queries_step_back | retriever,
+        "question": lambda x: x["question"],
+    }
+    | response_prompt
+    | ChatOpenAI(temperature=0)
+    | StrOutputParser()
+)
+```
+
+#### Benefits
+
+- **Broader Context**: Retrieves foundational knowledge, not just specific answers
+- **Better Grounding**: Provides background information that enriches answers
+- **Comprehensive Answers**: Combines specific and general knowledge
+- **Reduced Narrowness**: Avoids missing important context due to overly specific queries
+- **Improved Understanding**: Helps the LLM understand the broader context of the question
+
+#### Usage
+
+1. Set up your `.env` file with API keys:
+   ```
+   OPENAI_API_KEY=your_key_here
+   LANGCHAIN_API_KEY=your_key_here (optional, for tracing)
+   ```
+
+2. Run the notebook cells in order:
+   - Environment setup
+   - Document indexing
+   - Few-shot examples setup
+   - Step-back question generator
+   - Dual retrieval chain
+   - Execution
+
+3. Ask questions:
+   ```python
+   question = "What is task decomposition for LLM agents?"
+   answer = chain.invoke({"question": question})
+   ```
+
+#### Example
+
+**Original Question:** "What is task decomposition for LLM agents?"
+
+**Step-Back Question:** "What is the process of breaking down tasks for LLM agents?"
+
+The step-back question retrieves broader context about task decomposition processes, while the original question retrieves specific information. Both contexts are combined to provide a comprehensive answer.
+
+#### Requirements
+
+- OpenAI API key
+- Python packages (see main `requirements.txt`)
+
+#### Key Dependencies
+
+- `langchain`
+- `langchain-openai`
+- `langchain-community`
+- `langchain-text-splitters`
+- `chromadb`
+
+---
+
 ### Corrective RAG (CRAG)
 
 **File:** `Corrective RAG (CRAG).ipynb`
