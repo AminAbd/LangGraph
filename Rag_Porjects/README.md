@@ -376,6 +376,145 @@ RAG-Fusion with Reciprocal Rank Fusion improves Retrieval-Augmented Generation b
 
 
 ---
+### RAG with Question Decomposition
+
+**File:** `Rag_Decomposition.ipynb`
+
+An advanced RAG implementation that uses **question decomposition** to break down complex questions into simpler sub-questions, answer them individually, and then synthesize a comprehensive final answer.
+
+#### Overview
+
+Complex questions often require answering multiple related sub-questions to provide a complete answer. This implementation addresses this by:
+
+1. **Decomposing** complex questions into 3 simpler sub-questions
+2. **Answering** each sub-question using RAG
+3. **Synthesizing** the individual answers into a final comprehensive answer
+
+#### How It Works
+
+Instead of trying to answer a complex question directly, this approach:
+- Breaks the question into manageable sub-problems
+- Retrieves relevant documents for each sub-question
+- Answers each sub-question independently
+- Combines the answers to form a complete response
+
+#### Two Approaches
+
+**1. Recursive Answering:**
+- Answers sub-questions sequentially
+- Uses previously answered Q&A pairs as context for subsequent questions
+- Builds up knowledge incrementally
+- Each answer can reference previous answers
+
+**2. Individual Answering:**
+- Answers each sub-question independently
+- No dependency between sub-questions
+- Synthesizes all answers at the end
+- More parallelizable approach
+
+#### Workflow
+
+```
+Complex Question
+    ↓
+Decompose into 3 Sub-Questions
+    ↓
+For each sub-question:
+    ↓
+Retrieve Relevant Documents
+    ↓
+Generate Answer
+    ↓
+Synthesize All Answers
+    ↓
+Final Comprehensive Answer
+```
+
+#### Key Components
+
+1. **Question Decomposer**: Uses an LLM to break complex questions into 3 sub-questions
+2. **Sub-Question RAG**: Applies RAG to each sub-question independently
+3. **Answer Synthesis**: Combines individual answers into a final comprehensive response
+4. **Context Building**: (Recursive approach) Uses previous Q&A pairs as context
+
+#### Code Structure
+
+**Question Decomposition:**
+```python
+generate_queries_decomposition = (
+    prompt_decomposition 
+    | llm 
+    | StrOutputParser() 
+    | (lambda x: x.split("\n"))
+)
+```
+
+**Recursive Approach:**
+- Answers sub-questions sequentially
+- Uses previous Q&A pairs as context
+- Builds knowledge incrementally
+
+**Individual Approach:**
+- Answers each sub-question independently
+- Formats Q&A pairs
+- Synthesizes final answer from all pairs
+
+#### Benefits
+
+- **Better Coverage**: Ensures all aspects of a complex question are addressed
+- **Improved Accuracy**: Breaking down questions leads to more focused retrieval
+- **Comprehensive Answers**: Synthesizes multiple perspectives into one answer
+- **Handles Complexity**: Better suited for multi-part questions
+- **Modular Approach**: Each sub-question can be answered with relevant context
+
+#### Usage
+
+1. Set up your `.env` file with API keys:
+   ```
+   OPENAI_API_KEY=your_key_here
+   LANGCHAIN_API_KEY=your_key_here (optional, for tracing)
+   ```
+
+2. Run the notebook cells in order:
+   - Environment setup
+   - Document indexing
+   - Question decomposition setup
+   - Choose approach (recursive or individual)
+   - Execute and synthesize
+
+3. Ask complex questions:
+   ```python
+   question = "What are the main components of an LLM-powered autonomous agent system?"
+   questions = generate_queries_decomposition.invoke({"question": question})
+   # Then use recursive or individual approach
+   ```
+
+#### Example
+
+**Original Question:** "What are the main components of an LLM-powered autonomous agent system?"
+
+**Decomposed Sub-Questions:**
+1. "What is LLM technology and how does it work in autonomous agent systems?"
+2. "What are the specific components that make up an LLM-powered autonomous agent system?"
+3. "How do the main components of an LLM-powered autonomous agent system interact with each other to enable autonomous behavior?"
+
+Each sub-question is answered independently, then synthesized into a comprehensive final answer.
+
+#### Requirements
+
+- OpenAI API key
+- Python packages (see main `requirements.txt`)
+
+#### Key Dependencies
+
+- `langchain`
+- `langchain-openai`
+- `langchain-community`
+- `langchain-text-splitters`
+- `chromadb`
+
+---
+
 ### Corrective RAG (CRAG)
 
 **File:** `Corrective RAG (CRAG).ipynb`
